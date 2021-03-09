@@ -613,6 +613,8 @@ add_action( 'wp_footer', 'twentytwentyone_add_ie_class' );
 
 function myapi_pick_ceil( WP_REST_Request $request ){
 
+    global $wpdb;
+
 	$posts = get_posts( array(
 		'author' => (int) $request['id'],
 	) );
@@ -640,6 +642,25 @@ function myapi_pick_ceil( WP_REST_Request $request ){
 	);
 	
 	wp_send_json( $return );
+
+	$pages = $wpdb->get_results(
+    
+		SELECT post_title, post_content
+		FROM $wpdb->GameMiner
+		WHERE cell_number AND user_id AND selected_date AND type_prize
+	
+	);
+
+	if ( $pages ) {
+      foreach ( $pages as $page ) {
+
+         echo $page->post_title; 
+
+	  }
+
+
+	}
+
 }
 
 
@@ -651,3 +672,4 @@ add_action( 'rest_api_init', function(){
 	] );
 
 } );
+
