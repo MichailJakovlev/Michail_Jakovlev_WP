@@ -611,62 +611,46 @@ add_action( 'wp_footer', 'twentytwentyone_add_ie_class' );
 
 // My code
 
-function myapi_pick_ceil( WP_REST_Request $request ){
+function myapi_pick_ceil( WP_REST_Request $request ) {
+	global $wpdb;
+	$cell_number=['cell_number'];
+	$user_id=['user_id'];
+	$selected_date=['selected_date'];
+	$type_prize=['type_prize'];
 
-    global $wpdb;
-
-	$posts = get_posts( array(
-		'author' => (int) $request['id'],
+	$wpdb->query( 'INSERT INTO $wpdb->GameMiner (`user_id`, `cell_number`, `selected_date`, `type_prize`)
+			VALUES ( '". $user_id . "'. '" . $cell_number . "' . '" . $selected_date . "' . '" . $type_prize . "')' )
 	) );
 
-	if ( empty( $posts ) )
-		return new WP_Error( 'no_author_posts', 'Записей не найдено', [ 'status' => 404 ] );
+	$wpdb->query( 'SELECT * 
+	        FROM $wpdb->GameMiner
+			WHERE $cell_number = '' AND  = '' $user_id = '' AND $selected_date = '' AND $type_prize ='' ' )
+	) );
 
-	return $posts;
-    
-	$random = rand(0, 100);
-	echo $random;
+    $random = rand(1,10);
 
-	if($random >= 66){
-		 echo "Вы получите случайный подарок";
+	if ($random >= 4 && $random < 8) {
+		$result = "Вы выиграли!";
 	}
-	if($random >= 33 && $random < 66){
-		echo "Попробуйте еще раз";
- }
-	if($random < 33){
-		echo "Ход был не удачен";
+
+	else if ($random >= 8 && $random < 10) {
+		$result = "Вы получили дополнительную попытку!";
 	}
+
+	else {
+		$result = "Вы проиграли.";
+	}
+
 	$return = array(
-		'message' => 'Сохранено',
-		'ID' => 1
+		'result'   => '$result',
 	);
-	
+
 	wp_send_json( $return );
-
-	$pages = $wpdb->get_results(
-    
-		SELECT post_title, post_content
-		FROM $wpdb->GameMiner
-		WHERE cell_number AND user_id AND selected_date AND type_prize
-	
-	);
-
-	if ( $pages ) {
-      foreach ( $pages as $page ) {
-
-         echo $page->post_title; 
-
-	  }
-
-
-	}
-
 }
-
 
 add_action( 'rest_api_init', function(){
 
-	register_rest_route( 'myapi/v1', '/game/Mines/', [
+	register_rest_route( 'myapi', '/game', [
 		'methods'  => 'GET',
 		'callback' => 'myapi_pick_ceil',
 	] );
