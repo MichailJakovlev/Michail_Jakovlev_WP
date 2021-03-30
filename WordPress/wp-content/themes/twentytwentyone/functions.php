@@ -611,49 +611,70 @@ add_action( 'wp_footer', 'twentytwentyone_add_ie_class' );
 
 // My code
 
-function myapi_pick_ceil( WP_REST_Request $request ) {
+function myapi_pick_ceil( WP_REST_Request $request ){
+	
 	global $wpdb;
-	$cell_number=['cell_number'];
-	$user_id=['user_id'];
-	$selected_date=['selected_date'];
-	$type_prize=['type_prize'];
+// http://wp.ru/wp-json/myapi/v1/game/Mines/
 
-	$wpdb->query( 'INSERT INTO $wpdb->GameMiner (`user_id`, `cell_number`, `selected_date`, `type_prize`)
-			VALUES ( '". $user_id . "'. '" . $cell_number . "' . '" . $selected_date . "' . '" . $type_prize . "')' )
-	) );
+$selected_date=date("Y-m-d 00:00:00");
+$cell_number=1;
+$user_id=1;
+$type_prize=0;	
+$n = 99;
+$a = mt_rand (1,$n);
 
-	$wpdb->query( 'SELECT * 
-	        FROM $wpdb->GameMiner
-			WHERE $cell_number = '' AND  = '' $user_id = '' AND $selected_date = '' AND $type_prize ='' ' )
-	) );
+$result = $wpdb->get_results ("SELECT selected_date, cell_number FROM `wp_wpru_gameminer` WHERE cell_number between 1 and 25 AND selected_date > date('Y-m-d 00:00:00') AND type_prize != 2");
+var_dump ($result);
 
-    $random = rand(1,10);
+$rcount = count($result);
 
-	if ($random >= 4 && $random < 8) {
-		$result = "Вы выиграли!";
-	}
-
-	else if ($random >= 8 && $random < 10) {
-		$result = "Вы получили дополнительную попытку!";
-	}
-
-	else {
-		$result = "Вы проиграли.";
-	}
-
-	$return = array(
-		'result'   => '$result',
-	);
-
-	wp_send_json( $return );
+if($rcount >= 3) {
+    $return = array(
+        'MESSAGE' => "YOU LOSER",
+        'type_prize' => 3
+        );
+   return wp_send_json( $return );
 }
 
+
+
+if(1<= $a && $a <=33){
+	$result="Вы выиграли попробуйте еще раз";
+	$type_prize = 1;
+	
+}
+else if(34<= $a && $a <= 66){
+	$result="Вы получите случайный подарок";
+	$type_prize = 2;
+}
+else{
+	$result="Вы проиграли";
+	$type_prize = 3;
+}
+
+
+$return = array(
+	'result'   => $type_prize,
+	'MESSAGE'  => $result
+);
+
+
+$wpdb->query("INSERT INTO `wp_wpru_gameminer` ( `user_id`,`cell_number`, `selected_date`, `type_prize`) 
+VALUES ( '$user_id','$cell_number', '$selected_date', '$type_prize')" );
+
+
+$return = array(
+	'result'   => $type_prize,
+	'MESSAGE'  => $result
+);
+
+wp_send_json( $return );
+}
 add_action( 'rest_api_init', function(){
 
-	register_rest_route( 'myapi', '/game', [
-		'methods'  => 'GET',
-		'callback' => 'myapi_pick_ceil',
-	] );
+register_rest_route( 'myapi/v1', '/game/Mines/', [
+	'methods'  => 'GET',
+	'callback' => 'myapi_pick_ceil',
+] );
 
 } );
-
