@@ -618,8 +618,8 @@ function myapi_pick_ceil( WP_REST_Request $request ){
 
 $selected_date=date("Y-m-d 00:00:00");
 $cell_number=1;
-$user_id=1;
-$type_prize=0;	
+$user_id = 1;
+$type_prize = 0;	
 $n = 99;
 $a = mt_rand (1,$n);
 
@@ -674,7 +674,7 @@ add_action( 'rest_api_init', function(){
 
 register_rest_route( 'myapi/v1', '/game/Mines/', [
 	'methods'  => 'GET',
-	'callback' => 'myapi_pick_ceil',
+	'callback' => 'myapi_pick_ceil'
 ] );
 
 } );
